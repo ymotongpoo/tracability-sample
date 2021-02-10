@@ -1,0 +1,10 @@
+---
+- name: Deploy server application
+  hosts: scenario2-server
+  gather_facts: false
+  become: no
+  connection: local
+  roles:
+  - role: server
+  vars:
+  - go_version: 1.15.7

@@ -1,0 +1,10 @@
+---
+- name: Deploy client application
+  hosts: scenario2-client
+  gather_facts: false
+  become: no
+  connection: local
+  roles:
+  - role: client
+  vars:
+  - go_version: 1.15.7

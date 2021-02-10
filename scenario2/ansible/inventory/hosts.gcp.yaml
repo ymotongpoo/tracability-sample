@@ -1,0 +1,12 @@
+---
+plugin: google.cloud.gcp_compute
+auth_kind: serviceaccount
+service_account_file: "~/.credentials/serviceaccount.json"
+zones:
+- "asia-east1-b"
+projects:
+- "development-215403"
+hostnames:
+- name
+compose:
+  ansible_host: networkInterfaces[0].accessConfigs[0].natIP
