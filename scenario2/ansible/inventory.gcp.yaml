@@ -7,6 +7,6 @@ zones:
 projects:
 - "development-215403"
 hostnames:
-- name
+- 'name'
 compose:
   ansible_host: networkInterfaces[0].accessConfigs[0].natIP

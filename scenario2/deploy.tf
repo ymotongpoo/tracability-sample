@@ -15,6 +15,7 @@
 variable "project_id" {
     type = string
     description = "Google Cloud Platform project ID"
+    default = "development-215403"
 }
 
 variable "region" {
@@ -78,12 +79,12 @@ resource "google_compute_instance" "server" {
     depends_on = [google_compute_firewall.dev_http]
 
     service_account {
-        scopes = ["compute-rw", "logging-write", "monitoring"]
+        scopes = ["compute-rw", "logging-write", "monitoring", "trace"]
     }
 
     provisioner "local-exec" {
         working_dir = "./ansible/"
-        command = "ansible-playbook -i inventory/hosts.gcp.yaml server.yaml"
+        command = "ansible-playbook -i inventory.gcp.yaml server.yaml"
     }
 }
 
@@ -111,11 +112,11 @@ resource "google_compute_instance" "client" {
     depends_on = [google_compute_firewall.dev_http]
 
     service_account {
-        scopes = ["compute-rw", "logging-write", "monitoring"]
+        scopes = ["compute-rw", "logging-write", "monitoring", "trace"]
     }
 
     provisioner "local-exec" {
         working_dir = "./ansible/"
-        command = "ansible-playbook -i inventory/hosts.gcp.yaml client.yaml --extra-vars \"zone=${var.zone} project_id=${var.project_id} endpoint=${google_compute_instance.server.network_interface.0.access_config.0.nat_ip}\""
+        command = "ansible-playbook -i inventory.gcp.yaml client.yaml"
     }
 }

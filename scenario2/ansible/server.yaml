@@ -1,10 +1,56 @@
 ---
 - name: Deploy server application
   hosts: scenario2-server
-  gather_facts: false
-  become: no
-  connection: local
-  roles:
-  - role: server
+
   vars:
+  - server_app_dir: "{{ playbook_dir | dirname }}/server/"
   - go_version: 1.15.7
+  - go_binary: "/opt/go/bin/go"
+
+  tasks:
+  - name: Update apt packages
+    ansible.builtin.apt:
+      name: wget
+      state: latest
+      update_cache: yes
+    become: yes
+
+  - name: Download and expand Go tarball
+    ansible.builtin.unarchive:
+      src: https://golang.org/dl/go{{ go_version }}.linux-amd64.tar.gz
+      dest: /opt
+      mode: 0755
+      remote_src: yes
+    become: yes
+
+  - name: Copy application file
+    ansible.builtin.copy:
+      src: "{{ server_app_dir }}"
+      dest: server/
+      mode: 0644
+
+  - name: Build Go application
+    ansible.builtin.shell:
+      cmd: "{{ go_binary }} build -o app"
+      chdir: server/
+
+  - name: Move application file
+    ansible.builtin.shell:
+      cmd: mv server/app /usr/local/bin
+    become: yes
+
+  - name: Copy systemd service file
+    ansible.builtin.template:
+      src: app.service
+      dest: /etc/systemd/system/
+      owner: "{{ ansible_env.USER }}"
+      group: "{{ ansible_env.USER }}"
+      mode: 0755
+    become: yes
+
+  - name: Run server app as daemon
+    ansible.builtin.systemd:
+      state: started
+      name: app
+      enabled: yes
+    become: yes
